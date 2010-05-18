@@ -11,19 +11,13 @@ def getFormattedYrStockResultSet(stockInfo):
 	formattedResults = [__getFormattedYrStockTuple(year, s) for s in stockInfo]
 	return formattedResults
 
-def __formatKey(key):
-    return key[0].lower + key[1:]
-
 def getFormattedDailyStockResultSet(stockInfo):
 	today = datetime.date.today()
 	date = today.isoformat()
-	formattedResults = []
-	for s in stockInfo:
-	        row = {}
-        for item in s.items():
-	        row[__formatKey(item[0])] = item[1]
-        row["theDate"] = date
-        formattedResults.append(row)
+	if type(stockInfo) is not list:	
+		return [__getFormattedDayStockTuple(date, stockInfo)]
+	formattedResults = [__getFormattedDayStockTuple(date, s) \
+                        for s in stockInfo]
 	return formattedResults
 
 def getFormattedFreqStockResultSet(stockInfo):
@@ -54,18 +48,14 @@ def __getFormattedYrStockTuple(year, s):
 			s['EPSEstimateNextQuarter']) 
 
 def __getFormattedDayStockTuple(date, s):
-	return (s["symbol"], date, s["AverageDailyVolume"], \
-			s["DaysLow"], s["DaysHigh"], s["Volume"], \
-			s["ShortRatio"], s["OneyrTargetPrice"], s["Open"], \
-			s["PreviousClose"], s["EarningsShare"], s["DividendShare"], \
-			s["ChangeFromYearLow"], __remPcnt(s["PercentChangeFromYearLow"]), \
-			s["ChangeFromYearHigh"], __remPcnt(s["PercebtChangeFromYearHigh"]), \
+	return (s["symbol"], date, s["AverageDailyVolume"], s["DaysLow"], \
+            s["DaysHigh"], s["Volume"], s["Open"], s["PreviousClose"], \
+            s["EarningsShare"], s["DividendShare"], \
+            __remPcnt(s["PercentChangeFromYearLow"]), \
+			__remPcnt(s["PercebtChangeFromYearHigh"]), \
 			s["FiftydayMovingAverage"], s["TwoHundreddayMovingAverage"], \
-			s["ChangeFromTwoHundreddayMovingAverage"], \
-			__remPcnt(s["PercentChangeFromTwoHundreddayMovingAverage"]), \
-			s["ChangeFromFiftydayMovingAverage"], \
-			__remPcnt(s["PercentChangeFromFiftydayMovingAverage"]), \
-			s["PriceSales"], s["PERatio"], s["PEGRatio"])
+            __remPcnt(s["PercentChangeFromFiftydayMovingAverage"]), \
+			__remPcnt(s["PercentChangeFromTwoHundreddayMovingAverage"]))
 
 def __getFormattedFreqStockTuple(timestamp, s):
 	changePercentLow, changePercentHi = __parsePctRange(s["Change_PercentChange"])
