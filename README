@@ -2,27 +2,10 @@
 stockretriever.py
 retrieves stock information from Yahoo Finance using YQL
 
-Usage:
-retriever = StockRetriever(symbolList [,columnsToRetrieve])
-data = retriever.execute()
-
-data is a list of dictionaries where each dictionary contains stock information
-for one symbol
+Usage described @ http://www.gurchet-rai.net/dev/yahoo-finance-yql
 
 Dependencies:
 Python Yahoo! Social SDK: http://github.com/yahoo/yos-social-python
 simplejson
 oauth
 
---------------------------------------------------------------------------------
-To use the scripts to store historical stock data:
-
-1. run schema.sql to build the mysql database
-2. edit fin_db.py and add your database connection details
-3. use addStocks.py to insert ticker symbols you would like to follow
-       usage:
-            eg) python addStocks.py --cat=Tech YHOO GOOG MSFT
-
-
-Dependencies:
-    above + mysqldb
