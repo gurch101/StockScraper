@@ -1,11 +1,9 @@
 
 stockretriever.py
-retrieves stock information from Yahoo Finance using YQL
+A self-contained script that retrieves stock information from Yahoo! Finance using YQL
 
 Usage described @ http://www.gurchet-rai.net/dev/yahoo-finance-yql
 
 Dependencies:
-Python Yahoo! Social SDK: http://github.com/yahoo/yos-social-python
-simplejson
-oauth
+none
 
