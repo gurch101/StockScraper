@@ -151,7 +151,7 @@ class StockRetriever(YQLQuery):
         """retrieves all symbols that belong to an industry."""
         
         yql = 'select * from %s where id =\'%s\'' \
-              % (id, FINANCE_TABLES['industry'])
+              % (FINANCE_TABLES['industry'], id)
         response = super(StockRetriever, self).execute(yql)
         return self.__validate_response(response, 'industry')
         
