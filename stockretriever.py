@@ -1,3 +1,9 @@
+#! /usr/bin/env python
+#
+# Download from https://github.com/gurch101/StockScraper
+#
+# See http://www.gurchet-rai.net/dev/yahoo-finance-yql for details
+#
 """A wrapper for the Yahoo! Finance YQL api."""
 
 import sys, httplib, urllib
