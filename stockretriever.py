@@ -1,3 +1,9 @@
+#! /usr/bin/env python
+#
+# Download from https://github.com/gurch101/StockScraper
+#
+# See http://www.gurchet-rai.net/dev/yahoo-finance-yql for details
+#
 """A wrapper for the Yahoo! Finance YQL api."""
 
 import sys, httplib, urllib
@@ -15,35 +21,41 @@ FINANCE_TABLES = {'quotes': 'yahoo.finance.quotes',
                  'sectors': 'yahoo.finance.sectors',
                  'industry': 'yahoo.finance.industry'}
 
-				 
+
 def executeYQLQuery(yql):
 	conn = httplib.HTTPConnection('query.yahooapis.com')
 	queryString = urllib.urlencode({'q': yql, 'format': 'json', 'env': DATATABLES_URL})
 	conn.request('GET', PUBLIC_API_URL + '?' + queryString)
 	return json.loads(conn.getresponse().read())
 
-	
+
 class QueryError(Exception):
 
 	def __init__(self, value):
 		self.value = value
 
+	def __str__(self):
+		return repr(self.value)
 
+
+class NoResultsError(Exception):
+
+	def __init__(self, value):
+		self.value = value
 
 	def __str__(self):
 		return repr(self.value)
-  
-  
+
 
 def __format_symbol_list(symbolList):
 	return ",".join(["\""+stock+"\"" for stock in symbolList])
-	
+
 
 
 def __is_valid_response(response, field):
 	return 'query' in response and 'results' in response['query'] \
 		and field in response['query']['results']
-    
+
 
 
 def __validate_response(response, tagToCheck):
@@ -51,18 +63,18 @@ def __validate_response(response, tagToCheck):
 		quoteInfo = response['query']['results'][tagToCheck]
 	else:
 		if 'error' in response:
-			raise QueryError('YQL query failed with error: "%s".' 
+			raise QueryError('YQL query failed with error: "%s".'
 				% response['error']['description'])
 		else:
 			raise QueryError('YQL response malformed.')
 	return quoteInfo
 
 
-        
+
 def get_current_info(symbolList, columnsToRetrieve='*'):
-	"""Retrieves the latest data (15 minute delay) for the 
+	"""Retrieves the latest data (15 minute delay) for the
 	provided symbols."""
-	
+
 	columns = ','.join(columnsToRetrieve)
 	symbols = __format_symbol_list(symbolList)
 
@@ -85,37 +97,40 @@ def get_historical_info(symbol):
 	# delete first row which contains column names
 	del results['query']['results']['row'][0]
 	return results['query']['results']['row']
-	
+
 
 
 def get_news_feed(symbol):
 	"""Retrieves the rss feed for the provided symbol."""
-	
+
 	feedUrl = RSS_URL + symbol
 	yql = 'select title, link, description, pubDate from rss where url=\'%s\'' % feedUrl
 	response = executeYQLQuery(yql)
-	if response['query']['results']['item'][0]['title'].find('not found') > 0:
+	results = response['query']['results']
+	if None == results:
+		raise NoResultsError('No results for feed for %s.' % symbol)
+	if results['item'][0]['title'].find('not found') > 0:
 		raise QueryError('Feed for %s does not exist.' % symbol)
 	else:
-		return response['query']['results']['item']
+		return results['item']
 
 
-	
+
 def get_options_info(symbol, expiration='', columnsToRetrieve ='*'):
 	"""Retrieves options data for the provided symbol."""
-	
+
 	columns = ','.join(columnsToRetrieve)
 	yql = 'select %s from %s where symbol = \'%s\'' \
 		  % (columns, FINANCE_TABLES['options'], symbol)
-	
+
 	if expiration != '':
 		yql += " and expiration='%s'" %(expiration)
-	
+
 	response = executeYQLQuery(yql)
 	return __validate_response(response, 'optionsChain')
 
 
-	
+
 def get_index_summary(index, columnsToRetrieve='*'):
 	columns = ','.join(columnsToRetrieve)
 	yql = 'select %s from %s where symbol = \'@%s\'' \
