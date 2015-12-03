@@ -6,7 +6,7 @@
 #
 """A wrapper for the Yahoo! Finance YQL api."""
 
-import sys, httplib, urllib
+import sys, httplib, urllib, datetime
 
 try: import simplejson as json
 except ImportError: import json
@@ -85,14 +85,20 @@ def get_current_info(symbolList, columnsToRetrieve='*'):
 
 
 
-def get_historical_info(symbol):
+def get_historical_info(symbol,a=None,b=None):
 	"""Retrieves historical stock data for the provided symbol.
 	Historical data includes date, open, close, high, low, volume,
 	and adjusted close."""
 	
+	if(a == None or b == None):
+		dateString = ''
+	else:
+		dateString = '&a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&g=d&ignore=.csv'% \
+			(a.month-1, a.day, a.year, b.month-1, b.day,b.year)
+
 	yql = 'select * from csv where url=\'%s\'' \
 		  ' and columns=\"Date,Open,High,Low,Close,Volume,AdjClose\"' \
-		   % (HISTORICAL_URL + symbol)
+		   % (HISTORICAL_URL + symbol + dateString)
 	results = executeYQLQuery(yql)
 	# delete first row which contains column names
 	del results['query']['results']['row'][0]
@@ -163,6 +169,9 @@ if __name__ == "__main__":
         print get_current_info(sys.argv[1:])
         #print get_industry_ids()
         #get_news_feed('yhoo')
+        #a = datetime.date(2013,10,1)
+        #b = datetime.date(2013,10,3)
+        #print(get_historical_info('aapl', a, b))
     except QueryError, e:
         print e
         sys.exit(2)
